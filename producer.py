@@ -43,13 +43,15 @@ class Producer(Thread):
         
         while True:
             for product_info in self.products:
-                while product_info[1] > 0:
+                counter = product_info[1]
+                
+                while counter > 0:
                     is_placed = self.marketplace.publish(self.producer_id,
                                                         product_info[0])
                     
                     if is_placed == True:
                         sleep(product_info[2])
-                        product_info[1] -= 1
+                        counter -= 1
                     else:
                         sleep(self.wait_time)
                     

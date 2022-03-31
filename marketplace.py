@@ -104,10 +104,10 @@ class Marketplace:
 
         :returns True or False. If the caller receives False, it should wait and then try again
         """
-        for id, products in self.producers:
-            if product in products:
-                self.carts[cart_id].append((product, id))
-                self.producers[id].remove(product)
+        for key, value in self.producers.items():
+            if product in value:
+                self.carts[cart_id].append((product, key))
+                self.producers[key].remove(product)
                 
                 return True
 
@@ -136,10 +136,10 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
-        return self.carts[cart_id]
-    
-    def destroy_cart(self, cart_id):
-        if not cart_id in self.carts:
-            return
+        answer = []
         
-        self.carts.remove(cart_id)
+        for item in self.carts[cart_id]:
+            answer.append(item[0])
+        
+        return answer
+
