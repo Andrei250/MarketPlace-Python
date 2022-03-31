@@ -137,3 +137,9 @@ class Marketplace:
         :param cart_id: id cart
         """
         return self.carts[cart_id]
+    
+    def destroy_cart(self, cart_id):
+        if not cart_id in self.carts:
+            return
+        
+        self.carts.remove(cart_id)

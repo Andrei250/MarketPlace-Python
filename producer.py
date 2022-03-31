@@ -6,7 +6,6 @@ Assignment 1
 March 2021
 """
 
-from asyncio.windows_events import NULL
 from threading import Thread
 from time import sleep
 
@@ -38,7 +37,7 @@ class Producer(Thread):
         self.marketplace = marketplace
         self.wait_time = republish_wait_time
         self.name = kwargs['name']
-        self.producer_id = NULL
+        self.producer_id = None
 
     def run(self):
         self.producer_id = self.marketplace.register_producer()
