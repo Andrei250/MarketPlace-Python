@@ -6,8 +6,9 @@ Assignment 1
 March 2021
 """
 
+from asyncio.windows_events import NULL
 from threading import Thread
-
+from time import sleep
 
 class Producer(Thread):
     """
@@ -31,7 +32,27 @@ class Producer(Thread):
         @type kwargs:
         @param kwargs: other arguments that are passed to the Thread's __init__()
         """
-        pass
+        Thread.__init__(self, **kwargs)
+        
+        self.products = products
+        self.marketplace = marketplace
+        self.wait_time = republish_wait_time
+        self.name = kwargs['name']
+        self.producer_id = NULL
 
     def run(self):
-        pass
+        self.producer_id = self.marketplace.register_producer()
+        
+        while True:
+            for product_info in self.products:
+                while product_info[1] > 0:
+                    is_placed = self.marketplace.publish(self.producer_id,
+                                                        product_info[0])
+                    
+                    if is_placed == True:
+                        sleep(product_info[2])
+                        product_info[1] -= 1
+                    else:
+                        sleep(self.wait_time)
+                    
+                    
