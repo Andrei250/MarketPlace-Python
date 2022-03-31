@@ -66,4 +66,8 @@ class Consumer(Thread):
             items = self.marketplace.place_order()
             self.marketplace.destroy_cart(id)
             
+            for itm in items:
+                print("{} bought {}".format(self.name, itm))
+                
+
             

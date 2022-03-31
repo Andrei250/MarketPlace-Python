@@ -36,7 +36,6 @@ class Producer(Thread):
         self.products = products
         self.marketplace = marketplace
         self.wait_time = republish_wait_time
-        self.name = kwargs['name']
         self.producer_id = None
 
     def run(self):
