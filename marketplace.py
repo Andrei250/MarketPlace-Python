@@ -55,16 +55,20 @@ class Marketplace:
 
         id_prod = None
 
-        with self.producer_ids_lock:
-            id_prod = uuid.uuid4().hex
-
-            while id_prod in self.producers:
+        try:
+            with self.producer_ids_lock:
                 id_prod = uuid.uuid4().hex
 
-        self.producers[id_prod] = []
+                while id_prod in self.producers:
+                    id_prod = uuid.uuid4().hex
 
-        logging.info("Leaving register_producer method")
-        return id_prod
+            self.producers[id_prod] = []
+
+            logging.info("Leaving register_producer method")
+            return id_prod
+        except Exception as e:
+            logging.error("Register_producer error: {}".format(str(e)))
+            return None
 
     def publish(self, producer_id, product):
         """
@@ -91,10 +95,14 @@ class Marketplace:
             logging.info("In publish method producer_id has the queue full")
             return False
 
-        self.producers[producer_id].append(product)
+        try:
+            self.producers[producer_id].append(product)
 
-        logging.info("Leaving publish method")
-        return True
+            logging.info("Leaving publish method")
+            return True
+        except Exception as e:
+            logging.error("Error foudn in publish: {}".format(str(e)))
+            return False
 
     def new_cart(self):
         """
@@ -109,16 +117,20 @@ class Marketplace:
         cart_id = None
         logging.info("Entering new_cart method")
 
-        with self.cart_ids_lock:
-            cart_id = randint(0, Marketplace.maximumCartValue)
-
-            while cart_id in self.carts:
+        try:
+            with self.cart_ids_lock:
                 cart_id = randint(0, Marketplace.maximumCartValue)
 
-        self.carts[cart_id] = []
+                while cart_id in self.carts:
+                    cart_id = randint(0, Marketplace.maximumCartValue)
 
-        logging.info("Leaving new_cart method")
-        return cart_id
+            self.carts[cart_id] = []
+
+            logging.info("Leaving new_cart method")
+            return cart_id
+        except Exception as e:
+            logging.error("Error in new_cart: {}".format(str(e)))
+            return None
 
     def add_to_cart(self, cart_id, product):
         """
@@ -138,15 +150,19 @@ class Marketplace:
         """
         logging.info('Entered add_to_cart method with params {} and {}'.format(str(cart_id), str(product)))
 
-        for key, value in self.producers.items():
-            if product in value:
-                self.carts[cart_id].append((product, key))
-                value.remove(product)
-                logging.info("Leaving add_to_cart method. Product added")
-                return True
+        try:
+            for key, value in self.producers.items():
+                if product in value:
+                    self.carts[cart_id].append((product, key))
+                    value.remove(product)
+                    logging.info("Leaving add_to_cart method. Product added")
+                    return True
 
-        logging.info("Leaving add_to_cart method. Product is not into the store")
-        return False
+            logging.info("Leaving add_to_cart method. Product is not into the store")
+            return False
+        except Exception as e:
+            logging.error("Error in add_to_cart: {}".format(str(e)))
+            return False
 
     def remove_from_cart(self, cart_id, product):
         """
@@ -161,15 +177,18 @@ class Marketplace:
         logging.info('Entered remove_from_cart method with params {} and {}'.format(str(cart_id), str(product)))
 
         # go through products and find one of its kind
-        for tpl in self.carts[cart_id]:
-            if tpl[0] == product:
-                self.producers[tpl[1]].append(product)
-                self.carts[cart_id].remove(tpl)
+        try:
+            for tpl in self.carts[cart_id]:
+                if tpl[0] == product:
+                    self.producers[tpl[1]].append(product)
+                    self.carts[cart_id].remove(tpl)
 
-                logging.info("Leaving remove_from_cart method")
-                return
-            
-        logging.info("Leaving remove_from_cart method")
+                    logging.info("Leaving remove_from_cart method")
+                    return
+                
+            logging.info("Leaving remove_from_cart method")
+        except Exception as e:
+            logging.error("Error in remove_from_cart: {}".format(str(e)))
 
     def place_order(self, cart_id):
         """
@@ -183,8 +202,11 @@ class Marketplace:
         answer = []
 
         # go through the cart and get first item which is the product
-        for item in self.carts[cart_id]:
-            answer.append(item[0])
+        try:
+            for item in self.carts[cart_id]:
+                answer.append(item[0])
+        except Exception as e:
+            logging.error("Error in place_order: {}".format(str(e)))
 
         logging.info('Leaving place_order method')
         return answer
