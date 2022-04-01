@@ -1,9 +1,9 @@
 """
-This module represents the Consumer.
+This module offers the available Products.
 
 Computer Systems Architecture Course
 Assignment 1
-March 2021
+March 2022
 """
 
 from threading import Thread
@@ -40,35 +40,37 @@ class Consumer(Thread):
         self.cart = None
 
     def run(self):
+        """
+        For each cart, I generate a new id for it.
+        For each instruction from that cart, I add or remove a product.
+        Depending on the answer, the thread sleeps for wait_time seconds.
+        At the end I receive the list and print it.
+        """
+
         for cart in self.carts:
-            id = self.marketplace.new_cart()
-        
+            id_cart = self.marketplace.new_cart()
+
             for item in cart:
                 counter = item["quantity"]
-                
+
                 while counter > 0:
                     is_available = None
-                    
+
                     if item["type"] == "add":
-                        is_available = self.marketplace.add_to_cart(id,
+                        is_available = self.marketplace.add_to_cart(id_cart,
                                                                 item["product"])
-                        
-                        if is_available == True:
+
+                        if is_available is True:
                             counter -= 1
                         else:
                             sleep(self.wait_time)
-                        
+
                     elif item["type"] == "remove":
-                        is_available = self.marketplace.remove_from_cart(id,
+                        is_available = self.marketplace.remove_from_cart(id_cart,
                                                                     item["product"])
                         counter -= 1
-                    
-                    
-        
-            item = self.marketplace.place_order(id)
-            
-            for itm in item:
-                print("{} bought {}".format(self.name, itm))
-                
 
-            
+            item = self.marketplace.place_order(id_cart)
+
+            for itm in item:
+                print(f'{self.name} bought {itm}')

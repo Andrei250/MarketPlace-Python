@@ -1,9 +1,9 @@
 """
-This module represents the Producer.
+This module offers the available Products.
 
 Computer Systems Architecture Course
 Assignment 1
-March 2021
+March 2022
 """
 
 from threading import Thread
@@ -32,27 +32,33 @@ class Producer(Thread):
         @param kwargs: other arguments that are passed to the Thread's __init__()
         """
         Thread.__init__(self, **kwargs)
-        
+
         self.products = products
         self.marketplace = marketplace
         self.wait_time = republish_wait_time
         self.producer_id = None
 
     def run(self):
+        """
+        Generate a new id for the producer.
+        For each product type, try to generate that products.
+        if the product is placed then i have to wait a specific time
+        for that product. if the answer is False, the thread sleeps wait_time
+        seconds.
+        """
+
         self.producer_id = self.marketplace.register_producer()
-        
+
         while True:
             for product_info in self.products:
                 counter = product_info[1]
-                
+
                 while counter > 0:
                     is_placed = self.marketplace.publish(self.producer_id,
                                                         product_info[0])
-                    
-                    if is_placed == True:
+
+                    if is_placed is True:
                         sleep(product_info[2])
                         counter -= 1
                     else:
                         sleep(self.wait_time)
-                    
-                    
