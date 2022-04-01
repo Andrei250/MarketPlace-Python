@@ -17,7 +17,7 @@ from random import randint
 logging.Formatter.converter = time.gmtime
 logging.basicConfig(filename="marketplace.log", level=logging.DEBUG)
 handler = RotatingFileHandler(filename='marketplace.log', maxBytes=2048 * 1024, backupCount=8)
-time_formatter = logging.Formatter('%(asctime)s: %(message)s')
+time_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
 handler.setFormatter(time_formatter)
 logger = logging.getLogger()
 logger.addHandler(handler)
@@ -51,10 +51,9 @@ class Marketplace:
         if one or many threads access this method I need to keep it safe on
         generation, using a lock.
         """
-        logging.info("Entered register_producer method")        
+        logging.info("Entered register_producer method")
 
         id_prod = None
-
         try:
             with self.producer_ids_lock:
                 id_prod = uuid.uuid4().hex
@@ -66,8 +65,8 @@ class Marketplace:
 
             logging.info("Leaving register_producer method")
             return id_prod
-        except Exception as e:
-            logging.error("Register_producer error: {}".format(str(e)))
+        except ValueError as exc:
+            logging.error("Error in register_producer: %s", str(exc))
             return None
 
     def publish(self, producer_id, product):
@@ -85,12 +84,13 @@ class Marketplace:
         if the producer is not assigned or its queue is full return False.
         otherwise add the product into queue and return True.
         """
-        logging.info('Entered publish method with params {} and {}'.format(str(producer_id), str(product)))
+        logging.info('Entered publish method with params %s and %s',
+                     str(producer_id), str(product))
 
         if not producer_id in self.producers:
             logging.error("In publish method producer_id does not exist")
             return False
-        
+
         if len(self.producers[producer_id]) == self.size_per_producer:
             logging.info("In publish method producer_id has the queue full")
             return False
@@ -100,8 +100,8 @@ class Marketplace:
 
             logging.info("Leaving publish method")
             return True
-        except Exception as e:
-            logging.error("Error foudn in publish: {}".format(str(e)))
+        except ValueError as exc:
+            logging.error("Error foudn in publish: %s", str(exc))
             return False
 
     def new_cart(self):
@@ -128,8 +128,8 @@ class Marketplace:
 
             logging.info("Leaving new_cart method")
             return cart_id
-        except Exception as e:
-            logging.error("Error in new_cart: {}".format(str(e)))
+        except ValueError as exc:
+            logging.error("Error in new_cart: %s", str(exc))
             return None
 
     def add_to_cart(self, cart_id, product):
@@ -148,7 +148,8 @@ class Marketplace:
         then add it into the cart and delete it from the queue.
         I also add the id of the producer in case of removing.
         """
-        logging.info('Entered add_to_cart method with params {} and {}'.format(str(cart_id), str(product)))
+        logging.info('Entered add_to_cart method with params %s and %s',
+                     str(cart_id), str(product))
 
         try:
             for key, value in self.producers.items():
@@ -160,8 +161,8 @@ class Marketplace:
 
             logging.info("Leaving add_to_cart method. Product is not into the store")
             return False
-        except Exception as e:
-            logging.error("Error in add_to_cart: {}".format(str(e)))
+        except ValueError as exc:
+            logging.error("Error in add_to_cart: %s", str(exc))
             return False
 
     def remove_from_cart(self, cart_id, product):
@@ -174,7 +175,8 @@ class Marketplace:
         :type product: Product
         :param product: the product to remove from cart
         """
-        logging.info('Entered remove_from_cart method with params {} and {}'.format(str(cart_id), str(product)))
+        logging.info('Entered remove_from_cart method with params %s and %s',
+                     str(cart_id), str(product))
 
         # go through products and find one of its kind
         try:
@@ -185,10 +187,10 @@ class Marketplace:
 
                     logging.info("Leaving remove_from_cart method")
                     return
-                
+
             logging.info("Leaving remove_from_cart method")
-        except Exception as e:
-            logging.error("Error in remove_from_cart: {}".format(str(e)))
+        except ValueError as exc:
+            logging.error("Error in remove_from_cart: %s", str(exc))
 
     def place_order(self, cart_id):
         """
@@ -197,7 +199,7 @@ class Marketplace:
         :type cart_id: Int
         :param cart_id: id cart
         """
-        logging.info('Entered place_order method with params {}'.format(str(cart_id)))
+        logging.info('Entered place_order method with params %s', str(cart_id))
 
         answer = []
 
@@ -205,8 +207,8 @@ class Marketplace:
         try:
             for item in self.carts[cart_id]:
                 answer.append(item[0])
-        except Exception as e:
-            logging.error("Error in place_order: {}".format(str(e)))
+        except ValueError as exc:
+            logging.error("Error in place_order: %s", str(exc))
 
         logging.info('Leaving place_order method')
         return answer
