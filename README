@@ -1,0 +1,65 @@
+Nume: Dumitrescu Andrei 
+Grupă: 333CC
+
+# Tema 1 TODO
+We have to make a marketplace based on Multiple Concumers Multiple Producers paradigm,
+using Python multi-threading.
+
+The homework was composed of 4 modules:
+    - Marketplace => intermediate module in which the producer publish products and consumers buy
+    - Consumer => each consumer has multiple carts with different commands such as remove product or add product
+    - Producer => each producer publish a numer of products of each type ( tea or coffee)
+    - Product => type of product published by the producer
+
+About homework
+-
+
+I have used mainly the second lab of ASC and adapt it for the purpose of this homework.
+The idea behind is to use a dictionary for each producer and each cart.
+
+Knowing the number of maximum products published by each producer, I can use a list of
+products for each producer.
+
+In the producers dictionary, I store this list at the 'producer' key.
+When a producer publish a new product, firstly I check if that user is available for my
+marketplace. Then I publish the product only if the list for that producer is not full.
+Otherwise, I will return False.
+
+For the carts, I store a list of tuples, made of the product and the id for the producer.
+
+For generating the unique id for the card and the producer, I use a lock, because
+this way I can get over race conditions.
+
+Example:
+    with self.producer_ids_lock:
+                id_prod = uuid.uuid4().hex
+
+                while id_prod in self.producers:
+                    id_prod = uuid.uuid4().hex
+
+In this situation I generate a new id until it is unique. Same for cart_id.
+
+Overall the homework was useful and good for me to train my python skills.
+
+Implementation
+-
+I have implemented everything but the unittesting.
+
+The implementation consist of the code which resolv the 80 points test cases and also
+10 points for logging.
+
+Used second lab of ASC and the first one, for training my Python skills.
+Learned new Python this such as wait statement and coding style approaches.
+
+I had some difficulties on implementing logging, because my log file was always empty,
+but I found answer on python documentation and StackOverflow.
+
+Resources
+-
+
+For the logging, I have searched on StackOverflow and also on Python documentation.
+For the locks, I was locking for error messages and found about wait statement.
+
+Git
+-
+1. https://github.com/Andrei250/MarketPlace-Python
