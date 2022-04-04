@@ -43,6 +43,7 @@ class Marketplace:
         self.producer_ids_lock = Lock()
         self.cart_ids_lock = Lock()
         self.carts = {} # all the carts available
+        self.cart_lock = Lock() # lock used for operations over cart
 
     def register_producer(self):
         """
@@ -83,6 +84,7 @@ class Marketplace:
 
         if the producer is not assigned or its queue is full return False.
         otherwise add the product into queue and return True.
+        Mark the product as not used.
         """
         logging.info('Entered publish method with params %s and %s',
                      str(producer_id), str(product))
@@ -96,7 +98,7 @@ class Marketplace:
             return False
 
         try:
-            self.producers[producer_id].append(product)
+            self.producers[producer_id].append([product, 0])
 
             logging.info("Leaving publish method")
             return True
@@ -147,17 +149,20 @@ class Marketplace:
         Go through each item in the dictionare and if the product is there
         then add it into the cart and delete it from the queue.
         I also add the id of the producer in case of removing.
+        Mark as used.
         """
         logging.info('Entered add_to_cart method with params %s and %s',
                      str(cart_id), str(product))
 
         try:
-            for key, value in self.producers.items():
-                if product in value:
-                    self.carts[cart_id].append((product, key))
-                    value.remove(product)
-                    logging.info("Leaving add_to_cart method. Product added")
-                    return True
+            with self.cart_lock:
+                for key, value in self.producers.items():
+                    for prod in value:
+                        if product == prod[0]:
+                            self.carts[cart_id].append((product, key))
+                            prod[1] = 1
+                            logging.info("Leaving add_to_cart method. Product added")
+                            return True
 
             logging.info("Leaving add_to_cart method. Product is not into the store")
             return False
@@ -180,13 +185,21 @@ class Marketplace:
 
         # go through products and find one of its kind
         try:
-            for tpl in self.carts[cart_id]:
-                if tpl[0] == product:
-                    self.producers[tpl[1]].append(product)
-                    self.carts[cart_id].remove(tpl)
+            with self.cart_lock:
+                for tpl in self.carts[cart_id]:
+                    if tpl[0] == product:
+                        self.carts[cart_id].remove(tpl)
 
-                    logging.info("Leaving remove_from_cart method")
-                    return
+                        # remove element from producer's queue
+                        # I used a for loop, because maybe the indexes
+                        # will be lost
+                        for _, value in self.producers.items():
+                            for prod in value:
+                                if product == prod[0]:
+                                    prod[1] = 0
+
+                        logging.info("Leaving remove_from_cart method")
+                        return
 
             logging.info("Leaving remove_from_cart method")
         except ValueError as exc:
@@ -207,6 +220,13 @@ class Marketplace:
         try:
             for item in self.carts[cart_id]:
                 answer.append(item[0])
+
+                with self.cart_lock:
+                    for value in self.producers.items():
+                        for prod in enumerate(value):
+                            if item[0] == prod[0]:
+                                del prod
+
         except ValueError as exc:
             logging.error("Error in place_order: %s", str(exc))
 
