@@ -30,6 +30,13 @@ For the carts, I store a list of tuples, made of the product and the id for the 
 For generating the unique id for the card and the producer, I use a lock, because
 this way I can get over race conditions.
 
+For adding into cart, removing and printing the list, I have used a lock, because
+otherwise it would have been a race condition.
+
+I search everytime I encounter a product, because using an index could
+be a wrong approach. THe idea is that if another consumer remove a product,
+then the indexes are no longer available.
+
 Example:
     with self.producer_ids_lock:
                 id_prod = uuid.uuid4().hex
