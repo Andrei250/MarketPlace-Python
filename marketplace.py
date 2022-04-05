@@ -16,11 +16,11 @@ from random import randint
 # configuration of logging file
 logging.Formatter.converter = time.gmtime
 logging.basicConfig(filename="marketplace.log", level=logging.DEBUG)
-handler = RotatingFileHandler(filename='marketplace.log', maxBytes=2048 * 1024, backupCount=8)
-time_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
-handler.setFormatter(time_formatter)
-logger = logging.getLogger()
-logger.addHandler(handler)
+HANDLER = RotatingFileHandler(filename='marketplace.log', maxBytes=2048 * 1024, backupCount=8)
+TIME_FORMATTER = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+HANDLER.setFormatter(TIME_FORMATTER)
+LOGGER = logging.getLogger()
+LOGGER.addHandler(HANDLER)
 
 class Marketplace:
     """
@@ -39,7 +39,6 @@ class Marketplace:
 
         self.size_per_producer = queue_size_per_producer
         self.producers = {} # for each id, I have an entry into the dict
-        self.consumers = {} # for each consumer, I have an entry into the dict
         self.producer_ids_lock = Lock()
         self.cart_ids_lock = Lock()
         self.carts = {} # all the carts available

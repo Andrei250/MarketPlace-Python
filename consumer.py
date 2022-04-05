@@ -58,7 +58,7 @@ class Consumer(Thread):
 
                     if item["type"] == "add":
                         is_available = self.marketplace.add_to_cart(id_cart,
-                                                                item["product"])
+                                                                    item["product"])
 
                         if is_available is True:
                             counter -= 1
@@ -67,7 +67,7 @@ class Consumer(Thread):
 
                     elif item["type"] == "remove":
                         is_available = self.marketplace.remove_from_cart(id_cart,
-                                                                    item["product"])
+                                                                         item["product"])
                         counter -= 1
 
             item = self.marketplace.place_order(id_cart)

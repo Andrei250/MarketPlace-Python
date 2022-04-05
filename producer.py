@@ -55,7 +55,7 @@ class Producer(Thread):
 
                 while counter > 0:
                     is_placed = self.marketplace.publish(self.producer_id,
-                                                        product_info[0])
+                                                         product_info[0])
 
                     if is_placed is True:
                         sleep(product_info[2])
